@@ -1,0 +1,2 @@
+# LCGCycleCollectionView
+一个轻量级无限轮播的CollectionView，可以方便的设置自己的cell和数据源
