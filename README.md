@@ -1,4 +1,4 @@
-# LCGCycleCollectionView
+# LCGCycleView
 一个轻量级无限轮播的CollectionView和tableview，可以方便的设置自己的cell和数据源，可以自定义各种跑马灯，或者轮播效果。基于UICollectionView，UITableview的封装。
 可以实现分页滚动和连续滚动效果
 
