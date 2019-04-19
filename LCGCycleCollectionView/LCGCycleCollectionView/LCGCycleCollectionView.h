@@ -33,13 +33,16 @@ NS_ASSUME_NONNULL_BEGIN
 -(instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewFlowLayout *)flowLayout ;
 @property (nonatomic, weak, nullable) id <LCGCycleCollectionViewDelegate> delegate;
 @property (nonatomic, weak, nullable) id <LCGCycleCollectionViewDataSource> dataSource;
+//是否分页 建议使用分页滑动
+@property (nonatomic ,assign) BOOL pagingEnabled;
 //是否自动滑动
 @property (nonatomic ,assign) BOOL autoScroll;
-//定时器调用间隔 默认0.01
+//定时器调用间隔 分页滑动 最小为1
 @property (nonatomic ,assign) NSTimeInterval timeInterval ;
 //每次移动距离 默认0.5 如果是负数 方向相反;
 @property (nonatomic ,assign) CGFloat displacement ;
-
+//分页滑动的时候 每次改变的页数的数量 默认为1
+@property (nonatomic ,assign) NSUInteger changePageCount ;
 //注册UICollectionViewCell
 - (void)registerClass:(nullable Class)cellClass forCellWithReuseIdentifier:(NSString *)identifier ;
 

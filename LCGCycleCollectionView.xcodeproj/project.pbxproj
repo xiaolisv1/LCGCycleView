@@ -17,6 +17,7 @@
 		900C5F6A22672C00002FA0FE /* LCGCycleCollectionViewUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 900C5F6922672C00002FA0FE /* LCGCycleCollectionViewUITests.m */; };
 		900C5F7A22672C25002FA0FE /* LCGCycleCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 900C5F7822672C25002FA0FE /* LCGCycleCollectionView.m */; };
 		900C5F7D22672C39002FA0FE /* CUCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 900C5F7B22672C39002FA0FE /* CUCollectionViewCell.m */; };
+		90C4DEDB22695E6B00EA2CC6 /* LCGCycleTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C4DEDA22695E6B00EA2CC6 /* LCGCycleTableView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,10 +54,12 @@
 		900C5F6522672C00002FA0FE /* LCGCycleCollectionViewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LCGCycleCollectionViewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		900C5F6922672C00002FA0FE /* LCGCycleCollectionViewUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LCGCycleCollectionViewUITests.m; sourceTree = "<group>"; };
 		900C5F6B22672C00002FA0FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		900C5F7822672C25002FA0FE /* LCGCycleCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LCGCycleCollectionView.m; sourceTree = "<group>"; };
+		900C5F7822672C25002FA0FE /* LCGCycleCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LCGCycleCollectionView.m; sourceTree = "<group>"; wrapsLines = 1; };
 		900C5F7922672C25002FA0FE /* LCGCycleCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LCGCycleCollectionView.h; sourceTree = "<group>"; };
 		900C5F7B22672C39002FA0FE /* CUCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CUCollectionViewCell.m; sourceTree = "<group>"; };
 		900C5F7C22672C39002FA0FE /* CUCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CUCollectionViewCell.h; sourceTree = "<group>"; };
+		90C4DED922695E6B00EA2CC6 /* LCGCycleTableView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LCGCycleTableView.h; sourceTree = "<group>"; };
+		90C4DEDA22695E6B00EA2CC6 /* LCGCycleTableView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LCGCycleTableView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +149,8 @@
 			children = (
 				900C5F7922672C25002FA0FE /* LCGCycleCollectionView.h */,
 				900C5F7822672C25002FA0FE /* LCGCycleCollectionView.m */,
+				90C4DED922695E6B00EA2CC6 /* LCGCycleTableView.h */,
+				90C4DEDA22695E6B00EA2CC6 /* LCGCycleTableView.m */,
 			);
 			path = LCGCycleCollectionView;
 			sourceTree = "<group>";
@@ -281,6 +286,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				900C5F7A22672C25002FA0FE /* LCGCycleCollectionView.m in Sources */,
+				90C4DEDB22695E6B00EA2CC6 /* LCGCycleTableView.m in Sources */,
 				900C5F4A22672BFC002FA0FE /* ViewController.m in Sources */,
 				900C5F7D22672C39002FA0FE /* CUCollectionViewCell.m in Sources */,
 				900C5F5522672C00002FA0FE /* main.m in Sources */,
