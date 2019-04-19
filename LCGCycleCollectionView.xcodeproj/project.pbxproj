@@ -110,7 +110,7 @@
 		900C5F4422672BFC002FA0FE /* LCGCycleCollectionView */ = {
 			isa = PBXGroup;
 			children = (
-				900C5F7722672C15002FA0FE /* LCGCycleCollectionView */,
+				900C5F7722672C15002FA0FE /* LCGCycleView */,
 				900C5F4522672BFC002FA0FE /* AppDelegate.h */,
 				900C5F4622672BFC002FA0FE /* AppDelegate.m */,
 				900C5F4822672BFC002FA0FE /* ViewController.h */,
@@ -144,7 +144,7 @@
 			path = LCGCycleCollectionViewUITests;
 			sourceTree = "<group>";
 		};
-		900C5F7722672C15002FA0FE /* LCGCycleCollectionView */ = {
+		900C5F7722672C15002FA0FE /* LCGCycleView */ = {
 			isa = PBXGroup;
 			children = (
 				900C5F7922672C25002FA0FE /* LCGCycleCollectionView.h */,
@@ -152,7 +152,7 @@
 				90C4DED922695E6B00EA2CC6 /* LCGCycleTableView.h */,
 				90C4DEDA22695E6B00EA2CC6 /* LCGCycleTableView.m */,
 			);
-			path = LCGCycleCollectionView;
+			path = LCGCycleView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
