@@ -35,7 +35,7 @@ tv.changePageCount = 1 ;
 [tv registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"] ;
 [self.view addSubview:tv] ;
 ```
-###实现相关代理，返回自己的cell即可
+### 实现相关代理，返回自己的cell即可
 * delegate
 ```objc
 //LCGCycleCollectionView  dataSource
