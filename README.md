@@ -2,7 +2,7 @@
 一个轻量级无限轮播的CollectionView和tableview，可以方便的设置自己的cell和数据源，可以自定义各种跑马灯，或者轮播效果。基于UICollectionView，UITableview的封装。
 可以实现分页滚动和连续滚动效果
 
-![预览图加载失败](https://github.com/xiaolisv1/LCGCycleView/blob/master/%E6%9C%AA%E5%91%BD%E5%90%8D.gif)
+![预览图加载失败](https://github.com/xiaolisv1/LCGCycleView/blob/master/%E9%A2%84%E8%A7%88.gif)
 
 ## usege demo
 * init 
