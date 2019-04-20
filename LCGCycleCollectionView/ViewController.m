@@ -31,6 +31,7 @@
     cv.timeInterval = 1;
     cv.pagingEnabled = YES ;
     cv.changePageCount = 1 ;
+    cv.tag = 1000 ;
     [cv registerClass:[CUCollectionViewCell class] forCellWithReuseIdentifier:@"CUCollectionViewCell"] ;
     [self.view addSubview:cv] ;
     
@@ -44,9 +45,26 @@
     tv.timeInterval = 1;
     tv.pagingEnabled = YES ;
     tv.changePageCount = 1 ;
+    tv.tag = 1001 ;
     [tv registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"] ;
     [self.view addSubview:tv] ;
         
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    LCGCycleCollectionView * cv = [self.view viewWithTag:1000] ;
+    LCGCycleTableView * tv = [self.view viewWithTag:1001] ;
+    [cv setupTimer];
+    [tv setupTimer];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    LCGCycleCollectionView * cv = [self.view viewWithTag:1000] ;
+    LCGCycleTableView * tv = [self.view viewWithTag:1001] ;
+    [cv invalidateTimer];
+    [tv invalidateTimer];
 }
 
 //LCGCycleCollectionView  dataSource

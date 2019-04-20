@@ -47,6 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 //刷新
 -(void)reloadData ;
+
+//关闭定时器  （在页面消失的时候调用）
+- (void)invalidateTimer ;
+
+//开始定时器  （在页面显示的时候调用）
+- (void)setupTimer ;
 @end
 
 NS_ASSUME_NONNULL_END

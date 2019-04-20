@@ -81,8 +81,7 @@
     if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
         if (contentW>=self.collectionView.frame.size.width) {
             self.canAutoScroll = YES ;
-            //设置初始偏移量
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+            
             //计算后面的临界点
             _backValue = contentW * 2 + self.flowLayout.minimumLineSpacing*2 ;
             //计算前面的临界点
@@ -90,7 +89,8 @@
             
             _backOffsetPoint = CGPointMake(contentW + self.flowLayout.minimumLineSpacing, 0) ;
             _frontOffsetPoint = CGPointMake(contentW * 2 + self.flowLayout.minimumLineSpacing, 0) ;
-            
+            //设置初始偏移量
+            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
             [self setupTimer];
             
         }else{
@@ -156,7 +156,7 @@
 {
     [self invalidateTimer];
     // 创建定时器前先停止定时器，不然会出现僵尸定时器，导致轮播频率错误
-    if (_autoScroll) {
+    if (_autoScroll && _backValue>0) {
         if (_pagingEnabled && _timeInterval<1) {
             _timeInterval = 1 ;
         }
