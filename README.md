@@ -8,11 +8,10 @@
 * init 
 ```objc
 //-----collectionView 类型
-UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
-flowLayout.minimumLineSpacing = 20;
-flowLayout.itemSize = CGSizeMake(100, 150) ;
-flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-LCGCycleCollectionView * cv = [[LCGCycleCollectionView alloc]initWithFrame:CGRectMake(10, 100, self.view.frame.size.width - 20, 150) collectionViewLayout:flowLayout];
+LCGCycleCollectionView * cv = [[LCGCycleCollectionView alloc]initWithFrame:CGRectMake(10, 100, self.view.frame.size.width - 20, 150)];
+cv.itemSpacing = 20;
+cv.itemSize = 100;
+cv.isHorizontal = YES ;
 cv.delegate = self ;
 cv.dataSource = self ;
 //    cv.autoScroll = NO ;
@@ -20,6 +19,7 @@ cv.dataSource = self ;
 cv.timeInterval = 1;
 cv.pagingEnabled = YES ;
 cv.changePageCount = 1 ;
+cv.tag = 1000 ;
 [cv registerClass:[CUCollectionViewCell class] forCellWithReuseIdentifier:@"CUCollectionViewCell"] ;
 [self.view addSubview:cv] ;
 
@@ -39,35 +39,34 @@ tv.changePageCount = 1 ;
 * delegate
 ```objc
 //LCGCycleCollectionView  dataSource
--(NSInteger)cycleCollectionView:(LCGCycleCollectionView *)ycleCollectionView collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
-    return 10 ;
+-(NSInteger)cycleCollectionViewCellNumber:(LCGCycleCollectionView *)cycleCollectionView{
+    return collectionViewCount;
 }
 
-- (__kindof UICollectionViewCell *)cycleCollectionView:(LCGCycleCollectionView *)cycleCollectionView collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
-    CUCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CUCollectionViewCell" forIndexPath:indexPath];
+- (__kindof UICollectionViewCell *)cycleCollectionView:(LCGCycleCollectionView *)cycleCollectionView cellIndex:(NSInteger)cellIndex cellForItemAtIndex:(NSInteger)index{
+    CUCollectionViewCell * cell = [cycleCollectionView dequeueReusableCellWithReuseIdentifier:@"CUCollectionViewCell" forCellIndex:cellIndex];
     cell.backgroundColor = [UIColor blueColor];
-    cell.titleLabel.text = [NSString stringWithFormat:@"%ld",(long)indexPath.row];
+    cell.titleLabel.text = [NSString stringWithFormat:@"%ld",(long)index];
     return cell ;
 }
-
 //LCGCycleTableView dataSource
--(NSInteger)cycleTableView:(LCGCycleTableView *)cycleTableView tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10 ;
+-(NSInteger)cycleTableViewCellNumber:(LCGCycleTableView *)cycleTableView{
+    return tableViewCount ;
 }
 
--(UITableViewCell *)cycleTableView:(LCGCycleTableView *)cycleTableView tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell * cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forIndexPath:indexPath];
-    if (indexPath.row%3 == 0) {
-       cell.backgroundColor = [UIColor redColor] ;
-    }else if (indexPath.row%3 == 1){
-       cell.backgroundColor = [UIColor greenColor] ;
+-(UITableViewCell *)cycleTableView:(LCGCycleTableView *)cycleTableView cellIndex:(NSInteger)cellIndex cellForRowAtIndex:(NSInteger)index{
+    UITableViewCell * cell = [cycleTableView dequeueReusableCellWithIdentifier:@"UITableViewCell" forCellIndex:cellIndex];
+    if (index%3 == 0) {
+        cell.backgroundColor = [UIColor redColor] ;
+    }else if (index%3 == 1){
+        cell.backgroundColor = [UIColor greenColor] ;
     }else{
-       cell.backgroundColor = [UIColor blueColor] ;
+        cell.backgroundColor = [UIColor blueColor] ;
     }
     cell.textLabel.textAlignment = NSTextAlignmentCenter ;
     cell.textLabel.font = [UIFont boldSystemFontOfSize:20] ;
     cell.textLabel.textColor = [UIColor whiteColor];
-    cell.textLabel.text = [NSString stringWithFormat:@"%ld",(long)indexPath.row];
+    cell.textLabel.text = [NSString stringWithFormat:@"%ld",(long)index];
     return cell ;
 }
 ```
