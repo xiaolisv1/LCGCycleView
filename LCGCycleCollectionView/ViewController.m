@@ -37,14 +37,16 @@
     cv.dataSource = self ;
 //        cv.autoScroll = NO ;
     //    cv.displacement = 1 ;
-    cv.timeInterval = 1;
-    cv.pagingEnabled = YES ;
+    cv.timeInterval = 0.02;
+    cv.displacement = 1 ;
+    cv.pagingEnabled = NO ;
     cv.changePageCount = 1 ;
     cv.tag = 1000 ;
     [cv registerClass:[CUCollectionViewCell class] forCellWithReuseIdentifier:@"CUCollectionViewCell"] ;
     [self.view addSubview:cv] ;
     collectionView = cv ;
     collectionViewCount = 50 ;
+    
     
     LCGCycleTableView * tv = [[LCGCycleTableView alloc]initWithFrame:CGRectMake(10, 300, self.view.frame.size.width - 20, 120)] ;
     tv.delegate = self ;

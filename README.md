@@ -1,7 +1,7 @@
 # LCGCycleView
 一个轻量级无限轮播的CollectionView和tableview，可以方便的设置自己的cell和数据源，可以自定义各种跑马灯，或者轮播效果。基于UICollectionView，UITableview的封装。
-可以实现分页滚动和连续滚动效果
-
+通过设置pagingEnabled可以实现分页滚动或者连续滚动效果
+displacement和timeInterval控制滑动速度
 ![预览图加载失败](https://github.com/xiaolisv1/LCGCycleView/blob/master/%E9%A2%84%E8%A7%88.gif)
 
 ## usege demo
@@ -14,10 +14,11 @@ cv.itemSize = 100;
 cv.isHorizontal = YES ;
 cv.delegate = self ;
 cv.dataSource = self ;
-//    cv.autoScroll = NO ;
+//       cv.autoScroll = NO ;
 //    cv.displacement = 1 ;
-cv.timeInterval = 1;
-cv.pagingEnabled = YES ;
+cv.timeInterval = 0.02;
+cv.displacement = 1 ;
+cv.pagingEnabled = NO ;
 cv.changePageCount = 1 ;
 cv.tag = 1000 ;
 [cv registerClass:[CUCollectionViewCell class] forCellWithReuseIdentifier:@"CUCollectionViewCell"] ;
