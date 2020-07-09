@@ -114,7 +114,7 @@
         
         if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
             if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]){
-                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i].width ;
+                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i] ;
             }else{
                 ch = ch + self.flowLayout.itemSize.width ;
             }
@@ -124,7 +124,7 @@
             }
         }else{
             if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]) {
-                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i].height ;
+                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i] ;
             }else{
                 ch = ch + self.flowLayout.itemSize.height ;
             }
@@ -167,9 +167,9 @@
     }
     
     if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
-        self.flowLayout.itemSize = CGSizeMake(self.itemSize, self.frame.size.height) ;
+        self.flowLayout.itemSize = CGSizeMake(self.itemSize, self.collectionView.frame.size.height) ;
     }else{
-        self.flowLayout.itemSize = CGSizeMake(self.frame.size.width, self.itemSize) ;
+        self.flowLayout.itemSize = CGSizeMake(self.collectionView.frame.size.width, self.itemSize) ;
     }
     
     [self reloadData] ;
@@ -317,7 +317,12 @@
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
     
     if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]) {
-        return [self.delegate cycleCollectionView:self layout:collectionViewLayout sizeForItemAtIndex:[self indexTransformWithIndex:indexPath]] ;
+        CGFloat value = [self.delegate cycleCollectionView:self layout:collectionViewLayout sizeForItemAtIndex:[self indexTransformWithIndex:indexPath]];
+        if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
+            return CGSizeMake(value, collectionView.frame.size.height);
+        }else{
+            return CGSizeMake(collectionView.frame.size.width, value);
+        }
     }
     return self.flowLayout.itemSize ;
 }

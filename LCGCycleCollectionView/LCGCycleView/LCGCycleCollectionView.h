@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 //cell点击
 - (void)cycleCollectionView:(LCGCycleCollectionView *)cycleCollectionView cellIndex:(NSInteger)cellIndex didSelectItemAtIndex:(NSInteger)index;
-//cell大小
-- (CGSize)cycleCollectionView:(LCGCycleCollectionView *)cycleCollectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndex:(NSInteger)index;
+//cell大小 如果是横向滑动就是item的宽度  如果是竖向滑动就是高度
+- (CGFloat)cycleCollectionView:(LCGCycleCollectionView *)cycleCollectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndex:(NSInteger)index;
 
 @end
 
