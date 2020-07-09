@@ -8,19 +8,9 @@
 
 #import "LCGCycleCollectionView.h"
 @interface LCGCycleCollectionView ()<UICollectionViewDataSource ,UICollectionViewDelegate ,UICollectionViewDelegateFlowLayout>
-{
-    //后面的临界点
-    CGFloat _backValue ;
-    //前面的临界点
-    CGFloat _frontValue ;
-    //滑动到后面的临界点偏移量设置值
-    CGPoint _backOffsetPoint ;
-    //滑动到前面的临界点偏移量设置值
-    CGPoint _frontOffsetPoint ;
-    
-}
+
 @property (nonatomic ,weak) NSTimer *timer;
-@property (nonatomic ,weak) UICollectionViewFlowLayout *flowLayout;
+@property (nonatomic ,strong) UICollectionViewFlowLayout *flowLayout;
 //item总个数
 @property (nonatomic ,assign) NSInteger totalItemsCount;
 //是否可以自动滑动
@@ -35,93 +25,154 @@
     self.collectionView.dataSource = nil;
 }
 
--(instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewFlowLayout *)flowLayout{
+-(UICollectionViewFlowLayout *)flowLayout{
+    if (!_flowLayout) {
+         _flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    }
+    return _flowLayout;
+}
+
+- (void)awakeFromNib{
+    [super awakeFromNib];    
+}
+
+-(instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
-        self.flowLayout = flowLayout ;
-        UICollectionView * collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:flowLayout];
-        collectionView.backgroundColor = [UIColor clearColor];
-        collectionView.pagingEnabled = NO;
-        collectionView.showsHorizontalScrollIndicator = NO;
-        collectionView.showsVerticalScrollIndicator = NO;
-        collectionView.dataSource = self;
-        collectionView.delegate = self;
-        collectionView.scrollsToTop = NO;
-        [self addSubview:collectionView];
-        self.collectionView = collectionView ;
+        [self setupUI];
+        
+        self.isHorizontal = YES ;
+        self.itemSpacing = 5 ;
         self.canAutoScroll = YES ;
         self.autoScroll = YES ;
         self.timeInterval = 1 ;
         self.displacement = 0.5 ;
         self.changePageCount = 1 ;
     }
-    return self ;
+    return self;
 }
 
+-(instancetype)initWithCoder:(NSCoder *)coder{
+    if (self = [super initWithCoder:coder]) {
+        [self setupUI];
+        
+        self.isHorizontal = YES ;
+        self.itemSpacing = 5 ;
+        self.canAutoScroll = YES ;
+        self.autoScroll = YES ;
+        self.timeInterval = 1 ;
+        self.displacement = 0.5 ;
+        self.changePageCount = 1 ;
+    }
+    return self;
+}
+
+-(void)setupUI{
+    UICollectionView * collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:self.flowLayout];
+    collectionView.backgroundColor = [UIColor clearColor];
+    collectionView.pagingEnabled = NO;
+    collectionView.showsHorizontalScrollIndicator = NO;
+    collectionView.showsVerticalScrollIndicator = NO;
+    collectionView.dataSource = self;
+    collectionView.delegate = self;
+    collectionView.scrollsToTop = NO;
+    collectionView.frame = self.bounds ;
+    [self addSubview:collectionView];
+    self.collectionView = collectionView ;
+    
+}
+
+-(void)setItemSize:(CGFloat)itemSize{
+    _itemSize = itemSize ;
+    if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
+        self.flowLayout.itemSize = CGSizeMake(itemSize, self.frame.size.height) ;
+    }else{
+        self.flowLayout.itemSize = CGSizeMake(self.frame.size.width, itemSize) ;
+    }
+}
+
+-(void)setIsHorizontal:(BOOL)isHorizontal{
+    _isHorizontal = isHorizontal ;
+    if (_isHorizontal) {
+        self.flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal ;
+    }else{
+        self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical ;
+    }
+}
+
+
 -(void)reloadData{
+    [self invalidateTimer] ;
+    self.totalItemsCount = [self.dataSource cycleCollectionViewCellNumber:self] ;
+    
+    if (self.totalItemsCount<=0) {
+        [_collectionView reloadData] ;
+        return ;
+    }
+    CGFloat ch = 0 ;
+    self.canAutoScroll = NO ;
+    for (int i = 0; i<self.totalItemsCount; i++) {
+        
+        if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
+            if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]){
+                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i].width ;
+            }else{
+                ch = ch + self.flowLayout.itemSize.width ;
+            }
+            if (ch >= self.collectionView.frame.size.width) {
+                self.canAutoScroll = YES ;
+                break;
+            }
+        }else{
+            if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]) {
+                ch = ch + [self.delegate cycleCollectionView:self layout:self.flowLayout sizeForItemAtIndex:i].height ;
+            }else{
+                ch = ch + self.flowLayout.itemSize.height ;
+            }
+            if (ch >= self.collectionView.frame.size.height) {
+                self.canAutoScroll = YES ;
+                break;
+            }
+        }
+        
+    }
+    
     [self.collectionView reloadData];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self _setingAutoScroll];
-    });
+    
+    if (self.canAutoScroll) {
+        [self setupTimer];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(afterDelayHandle) object:nil];
+        [self performSelector:@selector(afterDelayHandle) withObject:nil afterDelay:0.2] ;
+    }else{
+        [self invalidateTimer];
+    }
+}
+
+-(void)afterDelayHandle{
+    //设置初始偏移量
+    if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
+    }else{
+        //设置初始偏移量 需在参数设置之后
+        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
+    }
 }
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        self.collectionView.frame = self.bounds ;
-        [self _setingAutoScroll];
-    });
-}
-
--(void)_setingAutoScroll{
-    if (self.totalItemsCount<=0 || !self.collectionView) {
-        return ;
-    }
-    //实际内容的容量宽度
-    CGFloat contentW = (self.collectionView.contentSize.width - self.flowLayout.minimumLineSpacing * 2)/3.0 ;
-    if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
-        if (contentW>=self.collectionView.frame.size.width) {
-            self.canAutoScroll = YES ;
-            
-            //计算后面的临界点
-            _backValue = contentW * 2 + self.flowLayout.minimumLineSpacing*2 ;
-            //计算前面的临界点
-            _frontValue = contentW + self.flowLayout.minimumLineSpacing - self.collectionView.frame.size.width ;
-            
-            _backOffsetPoint = CGPointMake(contentW + self.flowLayout.minimumLineSpacing, 0) ;
-            _frontOffsetPoint = CGPointMake(contentW * 2 + self.flowLayout.minimumLineSpacing, 0) ;
-            //设置初始偏移量
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionLeft animated:NO];
-            [self setupTimer];
-            
-        }else{
-            self.canAutoScroll = NO ;
-            [self invalidateTimer];
-            [self.collectionView reloadData];
-        }
+    self.collectionView.frame = self.bounds ;
+    if (_isHorizontal) {
+        self.flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal ;
     }else{
-        if (contentW>=self.collectionView.frame.size.height) {
-            self.canAutoScroll = YES ;
-            
-            //实际内容的容量高度
-            CGFloat contentH = (self.collectionView.contentSize.height - self.flowLayout.minimumInteritemSpacing * 2)/3.0 ;
-            //计算后面的临界点
-            _backValue = contentH * 2 + self.flowLayout.minimumInteritemSpacing*2 ;
-            //计算前面的临界点
-            _frontValue = contentH + self.flowLayout.minimumInteritemSpacing - self.collectionView.frame.size.height ;
-            _backOffsetPoint = CGPointMake(0, contentH + self.flowLayout.minimumInteritemSpacing) ;
-            _frontOffsetPoint = CGPointMake(0, contentH * 2 + self.flowLayout.minimumInteritemSpacing) ;
-            
-            //设置初始偏移量 需在参数设置之后
-            [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:self.totalItemsCount inSection:0] atScrollPosition:UICollectionViewScrollPositionTop animated:NO];
-            
-              [self setupTimer];
-        }else{
-            self.canAutoScroll = NO ;
-            [self invalidateTimer];
-            [self.collectionView reloadData];
-        }
+        self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical ;
     }
     
+    if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal){
+        self.flowLayout.itemSize = CGSizeMake(self.itemSize, self.frame.size.height) ;
+    }else{
+        self.flowLayout.itemSize = CGSizeMake(self.frame.size.width, self.itemSize) ;
+    }
+    
+    [self reloadData] ;
 }
 
 #pragma mark - 插入升序排序
@@ -156,7 +207,8 @@
 {
     [self invalidateTimer];
     // 创建定时器前先停止定时器，不然会出现僵尸定时器，导致轮播频率错误
-    if (_autoScroll && _backValue>0) {
+    
+    if (_autoScroll) {
         if (_pagingEnabled && _timeInterval<1) {
             _timeInterval = 1 ;
         }
@@ -175,11 +227,25 @@
 - (void)_automaticScroll
 {
     if (_pagingEnabled) {
-        NSArray * indexs = [self.collectionView indexPathsForVisibleItems];
-        indexs = [self inserSort:indexs] ;
-        NSIndexPath * currentFirstIndexpath = indexs.firstObject ;
         
-        [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:currentFirstIndexpath.row+self.changePageCount inSection:currentFirstIndexpath.section]  atScrollPosition:UICollectionViewScrollPositionLeft animated:YES];
+        if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+            if (self.collectionView.contentSize.width >= self.collectionView.frame.size.width) {
+                NSArray * indexs = [self.collectionView indexPathsForVisibleItems];
+                indexs = [self inserSort:indexs] ;
+                NSIndexPath * currentFirstIndexpath = indexs.firstObject ;
+                
+                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:currentFirstIndexpath.row+self.changePageCount inSection:currentFirstIndexpath.section]  atScrollPosition:UICollectionViewScrollPositionLeft animated:YES];
+            }
+        }else{
+            if (self.collectionView.contentSize.height >= self.collectionView.frame.size.height) {
+                NSArray * indexs = [self.collectionView indexPathsForVisibleItems];
+                indexs = [self inserSort:indexs] ;
+                NSIndexPath * currentFirstIndexpath = indexs.firstObject ;
+                
+                [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:currentFirstIndexpath.row+self.changePageCount inSection:currentFirstIndexpath.section]  atScrollPosition:UICollectionViewScrollPositionTop animated:YES];
+            }
+        }
+                
     }else{
         if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
             [self.collectionView setContentOffset:CGPointMake(self.collectionView.contentOffset.x + _displacement, 0)]  ;
@@ -193,16 +259,27 @@
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
     if (self.canAutoScroll) {
         CGFloat contentoffset = 0;
+        CGFloat contentValue = 0 ;
         if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
             contentoffset = self.collectionView.contentOffset.x ;
+            contentValue = self.collectionView.contentSize.width/3.0 ;
+            
+            if (contentoffset>=contentValue*2) {
+                [self.collectionView setContentOffset:CGPointMake(contentValue ,0 )]  ;
+            }else if(contentoffset <= contentValue - self.collectionView.frame.size.width){
+                [self.collectionView setContentOffset:CGPointMake(contentValue * 2 -  self.collectionView.frame.size.width , 0)]  ;
+            }
         }else{
             contentoffset = self.collectionView.contentOffset.y ;
+            contentValue = self.collectionView.contentSize.height/3.0 ;
+            
+            if (contentoffset>=contentValue*2) {
+                [self.collectionView setContentOffset:CGPointMake(0 ,contentValue )]  ;
+            }else if(contentoffset <= contentValue - self.collectionView.frame.size.height){
+                [self.collectionView setContentOffset:CGPointMake(0 ,contentValue * 2 -  self.collectionView.frame.size.height)]  ;
+            }
         }
-        if (contentoffset>=_backValue) {
-            [self.collectionView setContentOffset:_backOffsetPoint]  ;
-        }else if(contentoffset <= _frontValue){
-            [self.collectionView setContentOffset:_frontOffsetPoint]  ;
-        }
+    
     }
 }
 
@@ -210,9 +287,15 @@
     [self.collectionView registerClass:cellClass forCellWithReuseIdentifier:identifier] ;
 }
 
+- (void)registerNib:(nullable UINib *)nib forCellWithReuseIdentifier:(NSString *)identifier {
+    [self.collectionView registerNib:nib forCellWithReuseIdentifier:identifier];
+}
+
+- (__kindof UICollectionViewCell *)dequeueReusableCellWithReuseIdentifier:(NSString *)identifier forCellIndex:(NSInteger)cellIndex{
+    return [self.collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:[NSIndexPath indexPathForItem:cellIndex inSection:0]] ;
+}
+
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
-    
-    self.totalItemsCount = [self.dataSource cycleCollectionView:self collectionView:collectionView numberOfItemsInSection:section] ;
     if (self.canAutoScroll == NO) {
         return self.totalItemsCount ;
     }
@@ -220,26 +303,40 @@
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
-    return [self.dataSource cycleCollectionView:self collectionView:collectionView cellForItemAtIndexPath:[self indexTransformWithIndex:indexPath]] ;
+    return [self.dataSource cycleCollectionView:self cellIndex:indexPath.row cellForItemAtIndex:[self indexTransformWithIndex:indexPath]] ;
 }
 
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     [collectionView deselectItemAtIndexPath:indexPath animated:NO];
-    if ([self.delegate respondsToSelector:@selector(cycleCollectionView:collectionView:didSelectItemAtIndexPath:)]) {
-        [self.delegate cycleCollectionView:self collectionView:collectionView didSelectItemAtIndexPath:[self indexTransformWithIndex:indexPath]] ;
+    if ([self.delegate respondsToSelector:@selector(cycleCollectionView:cellIndex:didSelectItemAtIndex:)]) {
+        [self.delegate cycleCollectionView:self cellIndex:indexPath.row didSelectItemAtIndex:[self indexTransformWithIndex:indexPath]] ;
     }
 }
 
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
     
-    if ([self.delegate respondsToSelector:@selector(cycleCollectionView:collectionView:layout:sizeForItemAtIndexPath:)]) {
-        return [self.delegate cycleCollectionView:self collectionView:collectionView layout:collectionViewLayout sizeForItemAtIndexPath:[self indexTransformWithIndex:indexPath]] ;
+    if ([self.delegate respondsToSelector:@selector(cycleCollectionView:layout:sizeForItemAtIndex:)]) {
+        return [self.delegate cycleCollectionView:self layout:collectionViewLayout sizeForItemAtIndex:[self indexTransformWithIndex:indexPath]] ;
     }
     return self.flowLayout.itemSize ;
 }
 
--(NSIndexPath *)indexTransformWithIndex:(NSIndexPath *)indexPath{
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section{
+    if (self.flowLayout.scrollDirection == UICollectionViewScrollDirectionHorizontal) {
+        return _itemSpacing;
+    }
+    return 0;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section{
+    if (self.flowLayout.scrollDirection != UICollectionViewScrollDirectionHorizontal) {
+        return _itemSpacing;
+    }
+    return 0;
+}
+
+-(NSInteger)indexTransformWithIndex:(NSIndexPath *)indexPath{
     NSIndexPath * newIndexPath ;
     if (self.canAutoScroll == NO) {
         newIndexPath = indexPath ;
@@ -252,7 +349,7 @@
             newIndexPath = [NSIndexPath indexPathForRow:indexPath.row - self.totalItemsCount * 2 inSection:0] ;
         }
     }
-    return newIndexPath ;
+    return newIndexPath.row ;
 }
 
 
